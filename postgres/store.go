@@ -142,6 +142,7 @@ func (s *Store) Append(ctx context.Context, tx *sql.Tx, expectedVersion store.Ex
 
 	// Fetch current version from aggregate_heads table
 	var currentVersion sql.NullInt64
+	//nolint:gosec // G201: table name from trusted config, not user input
 	query := fmt.Sprintf(`
 		SELECT aggregate_version 
 		FROM %s 
@@ -216,6 +217,7 @@ func (s *Store) Append(ctx context.Context, tx *sql.Tx, expectedVersion store.Ex
 	// Insert events with auto-assigned versions and collect global positions and persisted events
 	globalPositions := make([]int64, len(events))
 	persistedEvents := make([]store.PersistedEvent, len(events))
+	//nolint:gosec // G201: table name from trusted config, not user input
 	insertQuery := fmt.Sprintf(`
 		INSERT INTO %s (
 			aggregate_type, aggregate_id, aggregate_version,
@@ -279,6 +281,7 @@ func (s *Store) Append(ctx context.Context, tx *sql.Tx, expectedVersion store.Ex
 
 	// Update aggregate_heads with the new version (UPSERT pattern)
 	latestVersion := nextVersion + int64(len(events)) - 1
+	//nolint:gosec // G201: table name from trusted config, not user input
 	upsertQuery := fmt.Sprintf(`
 		INSERT INTO %s (aggregate_type, aggregate_id, aggregate_version, updated_at)
 		VALUES ($1, $2, $3, NOW())
@@ -457,6 +460,7 @@ func buildReadEventsQuery(
 
 // GetLatestGlobalPosition implements store.GlobalPositionReader.
 func (s *Store) GetLatestGlobalPosition(ctx context.Context, tx *sql.Tx) (int64, error) {
+	//nolint:gosec // G201: table name from trusted config, not user input
 	query := fmt.Sprintf(`
 		SELECT global_position
 		FROM %s
@@ -486,6 +490,7 @@ func (s *Store) ReadAggregateStream(ctx context.Context, tx *sql.Tx, aggregateTy
 			"to_version", toVersion)
 	}
 
+	//nolint:gosec // G201: table name from trusted config, not user input
 	baseQuery := fmt.Sprintf(`
 		SELECT 
 			global_position, aggregate_type, aggregate_id, aggregate_version,
