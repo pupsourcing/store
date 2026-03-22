@@ -16,7 +16,7 @@ A minimal, production-ready event store for Go.
 - **Consumer interfaces** — `Consumer` and `ScopedConsumer` for event processing
 - **SQL migration generator** — `cmd/migrate-gen` generates a ready-to-apply `.sql` file
 - **Event mapping code generator** — `cmd/eventmap-gen` generates type-safe domain event mappings
-- **CockroachDB compatible** — the PostgreSQL implementation works unmodified against CockroachDB
+
 
 ## Quick Start
 
@@ -299,17 +299,6 @@ s := postgres.NewStore(postgres.NewStoreConfig(
 
 Consumers can `LISTEN` on the same channel to wake up immediately instead of polling on a fixed interval.
 
-### CockroachDB
-
-The `postgres` package is compatible with CockroachDB. Use the PostgreSQL driver with a CockroachDB connection string — no separate implementation is needed.
-
-```go
-db, err := sql.Open("postgres", "postgresql://root@localhost:26257/mydb?sslmode=disable")
-s := postgres.NewStore(postgres.DefaultStoreConfig())
-```
-
-See the [`cockroachdb-basic`](./examples/cockroachdb-basic/) example for a full walkthrough including transaction retry handling.
-
 ## Migration Generator
 
 `cmd/migrate-gen` generates a single `.sql` file that creates all required tables and indexes.
@@ -355,7 +344,7 @@ See the [`eventmap-codegen`](./examples/eventmap-codegen/) example for a complet
 Complete, runnable examples are in [`examples/`](./examples/):
 
 - **[basic](./examples/basic/)** — connecting, appending events, reading aggregate streams, and reading the global log
-- **[cockroachdb-basic](./examples/cockroachdb-basic/)** — using the PostgreSQL implementation against CockroachDB with transaction retry handling
+
 - **[eventmap-codegen](./examples/eventmap-codegen/)** — generating type-safe domain event mappings with `eventmap-gen`, including versioned payloads and projections
 
 ## Development
