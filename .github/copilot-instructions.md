@@ -35,7 +35,6 @@ store/                     # Core types (Event, PersistedEvent, Stream, AppendRe
 ├── cmd/
 │   ├── migrate-gen/       # CLI tool: generates SQL migration files
 │   └── eventmap-gen/      # CLI tool: generates event mapping code
-└── pkg/pupsourcing/       # Public API entry point (re-exports + convenience wrappers)
 ```
 
 ## Development Guidelines
