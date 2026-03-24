@@ -3,6 +3,17 @@ package postgres
 import (
 	"strings"
 	"testing"
+
+	"github.com/pupsourcing/store"
+)
+
+// Compile-time interface compliance checks.
+var (
+	_ store.EventStore            = (*Store)(nil)
+	_ store.EventReader           = (*Store)(nil)
+	_ store.ScopedEventReader     = (*Store)(nil)
+	_ store.GlobalPositionReader  = (*Store)(nil)
+	_ store.AggregateStreamReader = (*Store)(nil)
 )
 
 func TestWithNotifyChannel(t *testing.T) {
@@ -30,13 +41,13 @@ func TestBuildReadEventsQuery(t *testing.T) {
 
 	tests := []struct {
 		name         string
-		scope        ReadEventsScope
+		scope        store.ReadScope
 		wantArgs     int
 		wantContains []string
 	}{
 		{
 			name:     "no scope filters",
-			scope:    ReadEventsScope{},
+			scope:    store.ReadScope{},
 			wantArgs: 2,
 			wantContains: []string{
 				"WHERE global_position > $1",
@@ -46,8 +57,20 @@ func TestBuildReadEventsQuery(t *testing.T) {
 		},
 		{
 			name: "aggregate type filter",
-			scope: ReadEventsScope{
+			scope: store.ReadScope{
 				AggregateTypes: []string{"User"},
+			},
+			wantArgs: 3,
+			wantContains: []string{
+				"WHERE global_position > $1",
+				"AND aggregate_type = ANY($2)",
+				"LIMIT $3",
+			},
+		},
+		{
+			name: "multiple aggregate type filters",
+			scope: store.ReadScope{
+				AggregateTypes: []string{"User", "Order", "Product"},
 			},
 			wantArgs: 3,
 			wantContains: []string{

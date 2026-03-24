@@ -61,6 +61,7 @@ func TestGeneratePostgres(t *testing.T) {
 		"idx_events_aggregate",
 		"idx_events_event_type",
 		"idx_events_correlation",
+		"idx_events_aggregate_type_position",
 	}
 
 	for _, idx := range requiredIndexes {

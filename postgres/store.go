@@ -96,12 +96,6 @@ type Store struct {
 	config StoreConfig
 }
 
-// ReadEventsScope applies optional aggregate type filters
-// to sequential event reads. An empty slice disables the filter.
-type ReadEventsScope struct {
-	AggregateTypes []string
-}
-
 // NewStore creates a new PostgreSQL event store with the given configuration.
 func NewStore(config *StoreConfig) *Store {
 	return &Store{
@@ -367,16 +361,15 @@ func findSubstring(s, substr string) bool {
 
 // ReadEvents implements store.EventReader.
 func (s *Store) ReadEvents(ctx context.Context, tx *sql.Tx, fromPosition int64, limit int) ([]store.PersistedEvent, error) {
-	return s.readEvents(ctx, tx, fromPosition, limit, ReadEventsScope{})
+	return s.readEvents(ctx, tx, fromPosition, limit, store.ReadScope{})
 }
 
-// ReadEventsWithScope reads events sequentially with optional SQL-level scope filters.
-// An empty AggregateTypes slice means "no filter".
-func (s *Store) ReadEventsWithScope(ctx context.Context, tx *sql.Tx, fromPosition int64, limit int, scope ReadEventsScope) ([]store.PersistedEvent, error) {
+// ReadEventsWithScope implements store.ScopedEventReader.
+func (s *Store) ReadEventsWithScope(ctx context.Context, tx *sql.Tx, fromPosition int64, limit int, scope store.ReadScope) ([]store.PersistedEvent, error) {
 	return s.readEvents(ctx, tx, fromPosition, limit, scope)
 }
 
-func (s *Store) readEvents(ctx context.Context, tx *sql.Tx, fromPosition int64, limit int, scope ReadEventsScope) ([]store.PersistedEvent, error) {
+func (s *Store) readEvents(ctx context.Context, tx *sql.Tx, fromPosition int64, limit int, scope store.ReadScope) ([]store.PersistedEvent, error) {
 	if s.config.Logger != nil {
 		keyvals := []interface{}{"from_position", fromPosition, "limit", limit}
 		if len(scope.AggregateTypes) > 0 {
@@ -431,7 +424,7 @@ func buildReadEventsQuery(
 	eventsTable string,
 	fromPosition int64,
 	limit int,
-	scope ReadEventsScope,
+	scope store.ReadScope,
 ) (query string, args []interface{}) {
 	query = fmt.Sprintf(`
 		SELECT 

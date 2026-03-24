@@ -458,22 +458,22 @@ func TestReadEventsWithScope(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		scope postgres.ReadEventsScope
+		scope store.ReadScope
 		want  []string
 	}{
 		{
 			name:  "single aggregate type",
-			scope: postgres.ReadEventsScope{AggregateTypes: []string{"User"}},
+			scope: store.ReadScope{AggregateTypes: []string{"User"}},
 			want:  []string{"User", "User"},
 		},
 		{
 			name:  "multiple aggregate types",
-			scope: postgres.ReadEventsScope{AggregateTypes: []string{"User", "Order"}},
+			scope: store.ReadScope{AggregateTypes: []string{"User", "Order"}},
 			want:  []string{"User", "Order", "User"},
 		},
 		{
 			name:  "no filter returns all",
-			scope: postgres.ReadEventsScope{},
+			scope: store.ReadScope{},
 			want:  []string{"User", "Order", "User", "Product"},
 		},
 	}
