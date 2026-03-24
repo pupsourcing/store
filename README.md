@@ -224,7 +224,7 @@ events, err = s.ReadEvents(ctx, tx, lastPosition, 500)
 To filter by aggregate type at the SQL level, use `ReadEventsWithScope`:
 
 ```go
-events, err := s.ReadEventsWithScope(ctx, tx, checkpoint, 500, postgres.ReadEventsScope{
+events, err := s.ReadEventsWithScope(ctx, tx, checkpoint, 500, store.ReadScope{
     AggregateTypes: []string{"User", "Order"},
 })
 ```

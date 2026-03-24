@@ -62,6 +62,28 @@ type GlobalPositionReader interface {
 	GetLatestGlobalPosition(ctx context.Context, tx *sql.Tx) (int64, error)
 }
 
+// ReadScope constrains sequential event reads.
+// A zero-value ReadScope applies no filters (reads all events).
+type ReadScope struct {
+	AggregateTypes []string
+}
+
+// ScopedEventReader reads events sequentially with optional SQL-level scope filters.
+type ScopedEventReader interface {
+	// ReadEventsWithScope reads events starting from the given global position,
+	// filtered by the provided scope. Returns up to limit events ordered by
+	// global_position ascending.
+	//
+	// An empty ReadScope (zero-value) applies no filters, making it equivalent
+	// to EventReader.ReadEvents.
+	//
+	// When ReadScope.AggregateTypes is non-empty, only events matching one of
+	// the listed aggregate types are returned. This enables efficient SQL-level
+	// filtering (e.g., WHERE aggregate_type = ANY(...)) instead of fetching all
+	// events and filtering in-memory.
+	ReadEventsWithScope(ctx context.Context, tx *sql.Tx, fromPosition int64, limit int, scope ReadScope) ([]PersistedEvent, error)
+}
+
 // AggregateStreamReader defines the interface for reading events for a specific aggregate.
 type AggregateStreamReader interface {
 	// ReadAggregateStream reads all events for a specific aggregate instance and returns

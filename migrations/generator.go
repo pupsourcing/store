@@ -87,6 +87,10 @@ CREATE INDEX IF NOT EXISTS idx_%s_event_type
 CREATE INDEX IF NOT EXISTS idx_%s_correlation 
     ON %s (correlation_id) WHERE correlation_id IS NOT NULL;
 
+-- Index for scoped sequential reads (aggregate_type + global_position)
+CREATE INDEX IF NOT EXISTS idx_%s_aggregate_type_position 
+    ON %s (aggregate_type, global_position);
+
 -- Aggregate heads table tracks the current version of each aggregate
 -- Provides O(1) version lookup for event append operations
 -- Primary key (aggregate_type, aggregate_id) ensures one row per aggregate
@@ -105,6 +109,7 @@ CREATE INDEX IF NOT EXISTS idx_%s_updated
 `,
 		time.Now().Format(time.RFC3339),
 		config.EventsTable,
+		config.EventsTable, config.EventsTable,
 		config.EventsTable, config.EventsTable,
 		config.EventsTable, config.EventsTable,
 		config.EventsTable, config.EventsTable,
